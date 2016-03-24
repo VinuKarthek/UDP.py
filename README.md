@@ -3,4 +3,6 @@
 UDP Client.py & UDP Server.py together implements a simple UDP Socket Using Python
 
 
-echo client.py & echo server.py implements Audio Streaming Via UDP Socket
+echo client.py & echo server.py implements Audio Streaming Via UDP Socket Usin PyAudio
+
+PyAudio Dowload Link: http://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
