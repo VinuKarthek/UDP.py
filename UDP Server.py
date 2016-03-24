@@ -14,12 +14,15 @@ if __name__ == "__main__":
     server.serve_forever()"""
 
 import socket
-UDP_IP = "127.0.0.1"
-UDP_PORT = 5005
-sock = socket.socket(socket.AF_INET, # Internet
- socket.SOCK_DGRAM) # UDP
-sock.bind((UDP_IP, UDP_PORT))
 
-while True:
-    data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-    print "received message:", data
+UDP_IP = "localhost"
+UDP_PORT = 5454
+
+ServerSocket = socket.socket(socket.AF_INET, # Internet
+                     socket.SOCK_DGRAM) # UDP
+ServerSocket.bind((UDP_IP, UDP_PORT))
+
+while 1:
+    print "Waiting for data:"
+    print "Received: "+ServerSocket.recv(30) # buffer size is 30 bytes
+    
