@@ -1,20 +1,46 @@
+import pyaudio
 import socket
-import sys
+from threading import Thread
 
-# Create a TCP/IP socket
-ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+frames = []
 
-# Bind the socket to the port
-server_address = ('localhost', 11000)
-print >>sys.stderr, 'starting up on %s port %s' % server_address
-ServerSocket.bind(server_address)
-while True:
-    print >>sys.stderr, '\nwaiting to receive message'
-    data, address = ServerSocket.recvfrom(4096)
-    
-    print >>sys.stderr, 'received %s bytes from %s' % (len(data), address)
-    print >>sys.stderr, data
-    
-    if data:
-        sent = ServerSocket.sendto(data, address)
-        print >>sys.stderr, 'sent %s bytes back to %s' % (sent, address)
+def udpStream(CHUNK):
+
+    udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udp.bind(("127.0.0.1", 12345))
+
+    while True:
+        soundData, addr = udp.recvfrom(CHUNK*CHANNELS*2)
+        frames.append(soundData)
+    udp.close()
+
+def play(stream, CHUNK):
+    BUFFER = 10
+    while True:
+            if len(frames) == BUFFER:
+                while True:
+                    stream.write(frames.pop(0), CHUNK)
+
+if __name__ == "__main__":
+    FORMAT = pyaudio.paInt16
+    CHUNK = 1024
+    CHANNELS = 2
+    RATE = 44100
+
+    Audio = pyaudio.PyAudio()
+
+    stream = Audio.open(format=FORMAT,
+                    channels = CHANNELS,
+                    rate = RATE,
+                    output = True,
+                    frames_per_buffer = CHUNK,
+                    )
+
+    udpThread  = Thread(target = udpStream, args=(CHUNK,))
+    AudioThread  = Thread(target = play, args=(stream, CHUNK,))
+    udpThread .setDaemon(True)
+    AudioThread.setDaemon(True)
+    udpThread .start()
+    AudioThread.start()
+    udpThread .join()
+    AudioThread.join()
